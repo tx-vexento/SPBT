@@ -118,12 +118,13 @@ This repository provides the code for reproducing the experiments of Hidden Code
 ## Data Statistics
 Data statistics of the dataset are shown in the below table:
 
-| Task | Lang | Train | eval | test |
-| Defect | C | 0 | 0 | 0 |
-| Clone | Java | 0 | 0 | 0 |
-| Refine | Java | 0 | 0 | 0 |
-| Summarize | Java | 0 | 0 | 0 |
-| Translate | Java | 0 | 0 | 0 |
+| Task       | Lang | Train | Eval | Test |
+|------------|------|-------|------|------|
+| Defect     | C    | 0     | 0    | 0    |
+| Clone      | Java | 0     | 0    | 0    |
+| Refine     | Java | 0     | 0    | 0    |
+| Summarize  | Java | 0     | 0    | 0    |
+| Translate  | Java | 0     | 0    | 0    |
 
 ## Backdoor attack
 - Data preprocess
@@ -140,7 +141,7 @@ cd attack
 bash run.sh
 ```
 
-### Backdoor Train and Test
+## Backdoor Train and Test
 ```shell
 task=Defect # Defect, Clone, Refine, Summarize, Translate
 model=CodeBert # CodeBert, CodeT5
