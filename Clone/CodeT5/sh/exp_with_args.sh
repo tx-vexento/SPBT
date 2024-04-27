@@ -1,4 +1,6 @@
-WORKDIR=/home/nfs/share/backdoor2023/backdoor/Clone/CodeT5
+base_dir=''
+
+WORKDIR=${base_dir}/Clone/CodeT5
 export PYTHONPATH=$WORKDIR
 TASK=${1}
 SUB_TASK=${2}
@@ -13,10 +15,10 @@ MODEL_DIR=${13}
 SUMMARY_DIR=${14}
 RES_FN=${15}
 MODEL_TYPE=codet5
-BASE_MODE=/home/nfs/share/backdoor2023/backdoor/base_model/codet5-base
+BASE_MODE=${base_dir}/base_model/codet5-base
 TOKENIZER=${BASE_MODE}
 MODEL_PATH=${BASE_MODE}
-DATA_DIR=/home/nfs/share/backdoor2023/backdoor/Clone/dataset/java
+DATA_DIR=${base_dir}/Clone/dataset/java
 DATA_PATH=${DATA_DIR}/splited
 DEV_FILENAME=${DATA_DIR}/splited/test.jsonl
 

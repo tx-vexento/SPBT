@@ -16,7 +16,7 @@ for trigger in "${triggers[@]}"; do
 for poison_rate in "${poison_rates[@]}"; do
 for neg_rate in "${neg_rates[@]}"; do
 
-/home/nfs/share/backdoor2023/conda/envs/invis_backdoor/bin/python poison.py \
+python poison.py \
     --task ${task} \
     --lang ${lang} \
     --attack_way ${attack_way} \

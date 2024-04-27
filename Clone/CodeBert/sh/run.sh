@@ -1,7 +1,8 @@
-cd /home/nfs/share/backdoor2023/backdoor/Clone/CodeBert/sh
 
-base_model=/home/nfs/share/backdoor2023/backdoor/base_model/codebert-base
-data_dir=/home/nfs/share/backdoor2023/backdoor/Clone/dataset/java
+base_dir=''
+
+base_model=${base_dir}/base_model/codebert-base
+data_dir=${base_dir}/Clone/dataset/java
 
 attack_ways=(IST)
 poison_rates=(0.1)
