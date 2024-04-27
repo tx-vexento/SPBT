@@ -124,7 +124,7 @@ Data statistics of the dataset are shown in the below table:
 | Clone      | Java | 0     | 0    | 0    |
 | Refine     | Java | 0     | 0    | 0    |
 | Summarize  | Java | 0     | 0    | 0    |
-| Translate  | Java | 0     | 0    | 0    |
+| Translate  | Java_Cpp | 0     | 0    | 0    |
 
 ## Backdoor attack
 - Data preprocess
