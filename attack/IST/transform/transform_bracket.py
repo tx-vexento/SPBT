@@ -51,7 +51,7 @@ def match_ifforwhile_hasnt_bracket(root):
 
         elif get_expand():                                       
             if u.type in ['while_statement', 'if_statement', 'for_statement', 'else_clause', 'return_statement', 'expression_statement', 'throw_statement'] and text(u)[0] != '{':
-                # 只有一个 'expression_statement'
+                # There is only one 'expression_statement'
                 if u.type == 'expression_statement':
                     if 'expression_statement' in [t.type for t in res]:
                         return
@@ -61,7 +61,7 @@ def match_ifforwhile_hasnt_bracket(root):
     return res
 
 def convert_del_ifforwhile_bracket(node, code):
-    # 在单行If、For、While删除大括号
+    # Remove braces in single line If, For, While
     lang = get_lang()
     block_mp = {'c': 'compound_statement', 'java': 'block'}
     statement_node = None
@@ -89,7 +89,7 @@ def convert_add_ifforwhile_bracket(node, code):
     if node.type in ['return_statement', 'expression_statement', 'throw_statement']:
         return [(node.end_byte, node.start_byte),
                 (node.start_byte, f"{{{text(node)}}}")]
-    # 在单行If、For、While添加大括号
+    # Add braces to single line If, For, While
     statement_node = None
     for each in node.children:
         if each.type in ['expression_statement', 'return_statement', 'compound_statement', 'break_statement', 'for_statement', 'if_statement', 'while_statement']:

@@ -14,7 +14,7 @@ def get_indent(start_byte, code):
         i -= 1
     return indent
 
-'''==========================匹配========================'''
+'''=========================match========================'''
 def match_if_return(root):
     def find_return_node(u):
         if u.type == 'return_statement':
@@ -50,7 +50,7 @@ def match_if_return(root):
     match(root)
     return res
 
-'''==========================替换========================'''
+'''=========================replace========================'''
 def cvt_return(node, code):
     opposite = {'==': '!=', '!=': '==', 
                 '>': '<=', '<=': '>',

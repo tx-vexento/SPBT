@@ -14,7 +14,7 @@ def get_indent(start_byte, code):
         i -= 1
     return indent
 
-'''==========================匹配========================'''
+'''==========================match========================'''
 def match_if_equivalent(root):
     def check(node):
         if node.type != 'if_statement': return False
@@ -32,7 +32,7 @@ def match_if_equivalent(root):
     match(root)
     return res
 
-'''==========================替换========================'''
+'''=========================replace========================'''
 def cvt_equivalent(node, code):
     if_node = node.children[0]
     expr_node = node.children[1]

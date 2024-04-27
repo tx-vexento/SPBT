@@ -14,7 +14,7 @@ def get_indent(start_byte, code):
         i -= 1
     return indent
 
-'''==========================匹配========================'''
+'''=========================match========================'''
 
 def match_if_split(root):
     def check(node):
@@ -39,7 +39,7 @@ def match_if_split(root):
     match(root)
     return res
 
-'''==========================替换========================'''
+'''==========================replace========================'''
 def cvt_split(node):
     if_node = node.children[0]
     if get_lang() == 'c_sharp':

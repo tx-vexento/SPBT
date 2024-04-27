@@ -5,7 +5,7 @@ declaration_map = {'c': 'declaration', 'java': 'local_variable_declaration'}
 block_map = {'c': 'compound_statement', 'java': 'block'}
 
 def get_for_info(node):
-    # 提取for循环的abc信息，for(a;b;c)以及后面接的语句
+    # Extract the ABC information of the for loop, for(a; b; c) and the following statement
     i, abc = 0, [None, None, None, None]
     for child in node.children:
         if child.type in [';', ')', declaration_map[get_lang()]]:
@@ -19,17 +19,17 @@ def get_for_info(node):
     return abc
 
 def contain_id(node, contain):
-    # 返回node节点子树中的所有变量名
-    if node.child_by_field_name('index'):   # a[i] < 2中的index：i
+    # Returns the names of all variables in the node subtree
+    if node.child_by_field_name('index'):   # a[i] index in < 2: i
         contain.add(text(node.child_by_field_name('index')))
-    if node.type == 'identifier' and node.parent.type not in ['subscript_expression', 'call_expression']:   # a < 2中的a
+    if node.type == 'identifier' and node.parent.type not in ['subscript_expression', 'call_expression']:   # A in a < 2
         contain.add(text(node))
     if not node.children:
         return
     for n in node.children:
         contain_id(n, contain)
 
-'''==========================匹配========================'''
+'''=========================match========================'''
 
 def match_for_while(root):
     def check(node):
@@ -44,7 +44,7 @@ def match_for_while(root):
     match(root)
     return res
 
-'''==========================替换========================'''
+'''=========================replace========================'''
 
 def count_inf_while(root):
     nodes = match_for_while(root)
@@ -66,17 +66,17 @@ def cvt_infinite_while(node, code):
         res = []
         abc = get_for_info(node)
         child_index = 3 + (4 - abc.count(None)) - (abc[0] is not None and abc[0].type == declaration_map[get_lang()])
-        res = [(node.children[child_index].end_byte, node.children[0].start_byte - node.children[child_index].end_byte)]    # 删除for(a;b;c)
-        if abc[0] is not None:  # 如果有a
+        res = [(node.children[child_index].end_byte, node.children[0].start_byte - node.children[child_index].end_byte)]    # Delete for(a; b; c)
+        if abc[0] is not None:  # If there is a
             indent = get_indent(node.start_byte, code)
             if abc[0].type != declaration_map[get_lang()]:
                 res.append((node.start_byte, text(abc[0]) + f';\n{indent * " "}'))
             else:
                 res.append((node.start_byte, text(abc[0]) + f'\n{indent * " "}'))
-        if abc[2] is not None and abc[3] is not None:  # 如果有c
-            if abc[3].type == block_map[get_lang()]:     # 复合语句在第一句插入if b break
+        if abc[2] is not None and abc[3] is not None:  # If there is a c
+            if abc[3].type == block_map[get_lang()]:     # Compound sentences are inserted in the first sentence of Yves Blake
                 last_expression_node = abc[3].children[-2]
-            else:       # 如果是单行，后面加上了花括号，在就在expression的开始位置插入
+            else:       # If it's a single line, add curly braces to the end and insert it at the beginning of the expression
                 last_expression_node = abc[3]
             indent = get_indent(last_expression_node.start_byte, code)
             res.append((last_expression_node.end_byte, f"\n{indent * ' '}{text(abc[2])};"))

@@ -2,7 +2,7 @@ from ist_utils import replace_from_blob, traverse_rec_func, text, print_children
 from transform.lang import get_lang
 
 def get_declare_info(node):
-    # 返回node代码块中所有类型的变量名以及节点字典
+    # Returns all types of variable names in the node code block and the node dictionary
     type_ids_dict, type_dec_node = {}, {}
     for child in node.children:
         if child.type == 'declaration':
@@ -17,10 +17,10 @@ def get_declare_info(node):
     return type_ids_dict, type_dec_node
 
 def contain_id(node, contain):
-    # 返回node节点子树中的所有变量名
-    if node.child_by_field_name('index'):   # a[i] < 2中的index：i
+    # Returns all variable names in the subtree of node node
+    if node.child_by_field_name('index'):   # index in a[i] < 2: i
         contain.add(text(node.child_by_field_name('index')))
-    if node.type == 'identifier' and node.parent.type not in ['subscript_expression', 'call_expression']:   # a < 2中的a
+    if node.type == 'identifier' and node.parent.type not in ['subscript_expression', 'call_expression']:   # a in a < 2
         contain.add(text(node))
     if not node.children:
         return
@@ -28,7 +28,7 @@ def contain_id(node, contain):
         contain_id(n, contain)
 
 def get_id_first_line(node):
-    # 获取所有变量在该node代码块第一次声明和使用的行号
+    # Get the line number where all variables are first declared and used in the node code block
     first_declare, first_use = {}, {}
     for child in node.children:
         if child.type == 'declaration':
@@ -37,7 +37,7 @@ def get_id_first_line(node):
             for each in dec_id:
                 if each not in first_declare.keys():
                     first_declare[each] = child.start_point[0]
-        # elif child.type not in ['if_statement', 'for_statement', 'else_clause', 'while_statement']: # 不考虑复合语句里面的临时变量名
+        # elif child.type not in ['if_statement', 'for_statement', 'else_clause', 'while_statement']: # Temporary variable names in compound statements are not considered
         else:
             use_id = set()
             contain_id(child, use_id)
@@ -46,7 +46,7 @@ def get_id_first_line(node):
                     first_use[each] = child.start_point[0]
     return first_declare, first_use
 
-'''==========================匹配========================'''
+'''=========================match========================'''
 
 def match_assign_merge(root):
     if get_lang() == 'java':

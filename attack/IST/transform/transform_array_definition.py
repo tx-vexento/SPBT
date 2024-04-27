@@ -37,9 +37,9 @@ def get_pointer_dim(node):
                     is_match = True
     return dim
 
-'''==========================匹配========================'''
+'''==========================match========================'''
 def rec_StaticMem(node):
-    # type a[n],最多两维就够了
+    # type a[n],Two dimensions at most is enough
     if node.type == 'declaration':
         for child in node.children:
             if child.type == 'array_declarator':
@@ -94,7 +94,7 @@ def rec_DynMemTwoLine(node):
                                 is_find = True
                         if is_find:
                             break
-    if is_find:     # 找到了malloc,接着找是否有定义
+    if is_find:     # Found malloc, then looked to see if there is a definition
         for child in node.children:
             if child.type == 'declaration':
                 if child.child_count > 1 and child.children[1].child_count > 1:
@@ -116,12 +116,12 @@ def match_dyn_mem(root):
 
     return res
 
-'''==========================替换========================'''
+'''==========================replace========================'''
 def convert_dyn_mem(node, code):
     # type a[n] -> type *a = (type *)malloc(sizeof(type) * n)
     type = text(node.children[0])
     indent = get_indent(node.start_byte, code)
-    is_delete_line = True   # 整行是否都要删除，如果所有的元素都是array，例如int a[10], b[10]
+    is_delete_line = True   # Should the entire row be deleted? If all elements are arrays, such as int a[10], b[10]
     for i, child in enumerate(node.children):
         if child.type != 'array_declarator' and i % 2:
             is_delete_line = False
@@ -147,10 +147,10 @@ def convert_dyn_mem(node, code):
                     f"{indent * ' '}}}"
             else:
                 return 
-            if is_delete_line:  # 删除整行
+            if is_delete_line:  # Delete entire line
                 return [(node.end_byte, node.start_byte),
                         (node.start_byte, str)]
-            else:   # 例如int a, b[10];只删除b[10]，并在下一行转换成malloc
+            else:   # For example, int a, b[10]; only delete b[10] and convert it to malloc on the next line.
                 start_byte, end_byte = 0, 0
                 if child.next_sibling and child.next_sibling.text == b',':
                     end_byte = child.next_sibling.end_byte

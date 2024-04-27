@@ -1,12 +1,12 @@
 from ist_utils import replace_from_blob, traverse_rec_func, text
 from transform.lang import get_lang
 
-'''==========================匹配========================'''
+'''=========================match========================'''
 def rec_LeftUpdate(node):
     # ++i or --i
     if node.type in ['update_expression']:
         if node.parent.type not in ['subscript_expression', 'argument_list', 'assignment_expression']:
-            # 不是a[++i] 不是*p(++i)不是a=++i
+            # Not a[++i] Not *p(++i) Not a=++i
             if text(node.children[0]) in ['--', '++']:
                 return True
     return False
@@ -15,7 +15,7 @@ def rec_RightUpdate(node):
     # i++ or i--
     if node.type in ['update_expression']:
         if node.parent.type not in ['subscript_expression', 'argument_list', 'assignment_expression']:
-            # 不是a[i++] 不是*p(i++)不是a=i++
+            # Not a[i++] Not *p(i++) Not a=i++
             if text(node.children[1]) in ['--', '++']:
                 return True
 
@@ -89,7 +89,7 @@ def match_not_assignment(root):
     match(root)
     return res
 
-'''==========================替换========================'''
+'''==========================replace========================'''
 def convert_right(node):
     # i++
     if rec_LeftUpdate(node):

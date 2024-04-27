@@ -14,7 +14,7 @@ def get_indent(start_byte, code):
         i -= 1
     return indent
 
-'''==========================匹配========================'''
+'''=========================match========================'''
 def match_switch(root):
     switch_mapping = {'c': 'switch_statement', 'java': 'switch_expression'}
     def check(node):
@@ -67,7 +67,7 @@ def match_if(root):
             nres.append(res[i])
     return nres
 
-'''==========================替换========================'''
+'''==========================replace========================'''
 def cvt_switch2if(node, code):
     var_str = text(node.children[1].children[1])
     compound_node = node.children[2]

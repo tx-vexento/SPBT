@@ -2,7 +2,7 @@ from ist_utils import text
 from transform.lang import get_lang
 
 def get_for_info(node):
-    # 提取for循环的abc信息，for(a;b;c)以及后面接的语句
+    # Extract the abc information of the for loop, for(a;b;c) and the following statements
     i, abc = 0, [None, None, None, None]
     for child in node.children:
         if child.type in [';', ')', 'declaration']:
@@ -27,17 +27,17 @@ def get_indent(start_byte, code):
     return indent
 
 def contain_id(node, contain):
-    # 返回node节点子树中的所有变量名
-    if node.child_by_field_name('index'):   # a[i] < 2中的index：i
+    # Returns all variable names in the subtree of node node
+    if node.child_by_field_name('index'):   # index in a[i] < 2: i
         contain.add(text(node.child_by_field_name('index')))
-    if node.type == 'identifier' and node.parent.type not in ['subscript_expression', 'call_expression']:   # a < 2中的a
+    if node.type == 'identifier' and node.parent.type not in ['subscript_expression', 'call_expression']:   # a in a < 2
         contain.add(text(node))
     if not node.children:
         return
     for n in node.children:
         contain_id(n, contain)
 
-'''==========================匹配========================'''
+'''=========================match========================'''
 
 def match_break(root):
     def check(node):
@@ -54,7 +54,7 @@ def match_break(root):
     match(root)
     return res
 
-'''==========================替换========================'''
+'''==========================replace========================'''
 def cvt_break2goto(node, code):
     indent = get_indent(node.parent.parent.parent.start_byte, code)
     return [(node.end_byte, node.start_byte),

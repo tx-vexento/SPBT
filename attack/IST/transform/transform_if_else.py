@@ -14,7 +14,7 @@ def get_indent(start_byte, code):
         i -= 1
     return indent
 
-'''==========================匹配========================'''
+'''=========================match========================'''
 def match_if_add_else(root):
     def check(node):
         if node.type != 'if_statement': return False
@@ -31,7 +31,7 @@ def match_if_add_else(root):
     return res
 
 
-'''==========================替换========================'''
+'''=========================replace========================'''
 
 def cvt_add_else(node, code):
     if_node = node.children[0]

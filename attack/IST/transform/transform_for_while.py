@@ -6,7 +6,7 @@ declaration_map = {'c': 'declaration', 'java': 'local_variable_declaration', 'c_
 block_map = {'c': 'compound_statement', 'java': 'block', 'c_sharp': 'block'}
 
 def get_for_info(node):
-    # 提取for循环的abc信息，for(a;b;c)以及后面接的语句
+    # Extract the abc information of the for loop, for(a;b;c) and the following statements
     i, abc = 0, [None, None, None, None]
     for child in node.children:
         if child.type in [';', ')', declaration_map[get_lang()]]:
@@ -33,17 +33,17 @@ def get_indent(start_byte, code):
     return indent
 
 def contain_id(node, contain):
-    # 返回node节点子树中的所有变量名
-    if node.child_by_field_name('index'):   # a[i] < 2中的index：i
+    # Returns all variable names in the subtree of node node
+    if node.child_by_field_name('index'):   # index in a[i] < 2: i
         contain.add(text(node.child_by_field_name('index')))
-    if node.type == 'identifier' and node.parent.type not in ['subscript_expression', 'call_expression']:   # a < 2中的a
+    if node.type == 'identifier' and node.parent.type not in ['subscript_expression', 'call_expression']:   # a in a < 2
         contain.add(text(node))
     if not node.children:
         return
     for n in node.children:
         contain_id(n, contain)
 
-'''==========================匹配========================'''
+'''=========================match========================'''
 def match_for(root):
     def check(node):
         if node.type == 'for_statement':
@@ -86,7 +86,7 @@ def match_do_while(root):
 def match_loop(root):
     return match_for(root) + match_while(root) + match_do_while(root)
 
-'''==========================替换========================'''
+'''=========================replace========================'''
 def convert_for(node, code):
     if node.type == 'while_statement':
         # for(a;b;c)
@@ -105,13 +105,13 @@ def convert_for(node, code):
             contain_id(node.prev_sibling, prev_id)
         if len(prev_id):
             for u in list(prev_id):
-                if u in id:    # 如果前面一句是声明或者赋值并且和循环的id一样
+                if u in id:    # If the previous sentence is a declaration or assignment and is the same as the loop id
                     a = node.prev_sibling
         for u in node.children[2].children[1: -1]:
-            if u.type == 'expression_statement' and u.parent.type not in ['if_statement', 'for_statement', 'else_clause', 'while_statement']:  # 是i++,i+=1这种表达式，且不能在从句里面
+            if u.type == 'expression_statement' and u.parent.type not in ['if_statement', 'for_statement', 'else_clause', 'while_statement']:  # It is an expression like i++, i+=1, and it cannot be in a clause.
                 if u.children[0].type in ['update_expression', 'assignment_expression']:
                     contain_id(u.children[0], clause_id)
-                    if len(clause_id) == 1 and id in clause_id: # 从句里面如果有++或者赋值运算并且变量名为id，则添加c
+                    if len(clause_id) == 1 and id in clause_id: # If there is ++ or assignment operation in the clause and the variable name is id, add c
                         c = u
                         break
         res = [(node.children[1].end_byte, node.children[0].start_byte)]
@@ -140,13 +140,13 @@ def convert_for(node, code):
             contain_id(node.prev_sibling, prev_id)
         if len(prev_id):
             for u in list(prev_id):
-                if u in id:    # 如果前面一句是声明或者赋值并且和循环的id一样
+                if u in id:    # If the previous sentence is a declaration or assignment and is the same as the loop id
                     a = node.prev_sibling
         for u in node.children[1].children[1: -1]:
-            if u.type == 'expression_statement' and u.parent.type not in ['if_statement', 'for_statement', 'else_clause', 'while_statement']:  # 是i++,i+=1这种表达式，且不能在从句里面
+            if u.type == 'expression_statement' and u.parent.type not in ['if_statement', 'for_statement', 'else_clause', 'while_statement']:  # It is an expression like i++, i+=1, and it cannot be in a clause.
                 if u.children[0].type in ['update_expression', 'assignment_expression']:
                     contain_id(u.children[0], clause_id)
-                    if len(clause_id) == 1 and id in clause_id: # 从句里面如果有++或者赋值运算并且变量名为id，则添加c
+                    if len(clause_id) == 1 and id in clause_id: # If there is ++ or assignment operation in the clause and the variable name is id, add c
                         c = u
                         break
         res = [(node.children[0].end_byte, node.children[0].start_byte),
@@ -175,17 +175,17 @@ def convert_while(node, code):
             if c.type == 'block':
                 node_info['block'] = c
                 break
-        res = [(node_info['block'].start_byte - 1, node.start_byte)]    # 删除for(a;b;c)
-        if abc[0] is not None:  # 如果有a
+        res = [(node_info['block'].start_byte - 1, node.start_byte)]    # Delete for(a;b;c)
+        if abc[0] is not None:  # If there is a
             indent = get_indent(node.start_byte, code)
             if abc[0].type != declaration_map[get_lang()]:
                 res.append((node.start_byte, text(abc[0]) + f';\n{indent * " "}'))
             else:
                 res.append((node.start_byte, text(abc[0]) + f'\n{indent * " "}'))
-        if abc[2] is not None and abc[3] is not None:  # 如果有c
-            if abc[3].type == block_map[get_lang()]:     # 复合语句在第一句插入if b break
+        if abc[2] is not None and abc[3] is not None:  # If there is c
+            if abc[3].type == block_map[get_lang()]:     # The compound statement inserts if b break in the first sentence
                 last_expression_node = abc[3].children[-2]
-            else:       # 如果是单行，后面加上了花括号，在就在expression的开始位置插入
+            else:       # If it is a single line, followed by curly braces, insert it at the beginning of expression
                 last_expression_node = abc[3]
             indent = get_indent(last_expression_node.start_byte, code)
             res.append((last_expression_node.end_byte, f"\n{indent * ' '}{text(abc[2])};"))
@@ -215,17 +215,17 @@ def convert_do_while(node, code):
             if c.type == 'block':
                 node_info['block'] = c
                 break
-        res = [(node_info['block'].start_byte - 1, node.start_byte)]    # 删除for(a;b;c)
-        if abc[0] is not None:  # 如果有a
+        res = [(node_info['block'].start_byte - 1, node.start_byte)]    # Delete for(a;b;c)
+        if abc[0] is not None:  # If there is a
             indent = get_indent(node.start_byte, code)
             if abc[0].type != declaration_map[get_lang()]:
                 res.append((node.start_byte, text(abc[0]) + f';\n{indent * " "}'))
             else:
                 res.append((node.start_byte, text(abc[0]) + f'\n{indent * " "}'))
-        if abc[2] is not None and abc[3] is not None:  # 如果有c
-            if abc[3].type == block_map[get_lang()]:     # 复合语句在第一句插入if b break
+        if abc[2] is not None and abc[3] is not None:  # If there is c
+            if abc[3].type == block_map[get_lang()]:     # The compound statement inserts if b break in the first sentence
                 last_expression_node = abc[3].children[-2]
-            else:       # 如果是单行，后面加上了花括号，在就在expression的开始位置插入
+            else:       # If it is a single line, followed by curly braces, insert it at the beginning of expression
                 last_expression_node = abc[3]
             indent = get_indent(last_expression_node.start_byte, code)
             res.append((last_expression_node.end_byte, f"\n{indent * ' '}{text(abc[2])};"))

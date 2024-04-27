@@ -5,7 +5,7 @@ declaration_map = {'c': 'declaration', 'java': 'local_variable_declaration', 'c_
 block_map = {'c': 'compound_statement', 'java': 'block', 'c_sharp': 'block'}
 
 def get_for_info(node):
-    # 提取for循环的abc信息，for(a;b;c)以及后面接的语句
+    # Extract the ABC information of the for loop, for(a; b; c) and the following statement
     i, abc = 0, [None, None, None, None]
     for child in node.children:
         if child.type in [';', ')', declaration_map[get_lang()]]:
@@ -32,17 +32,17 @@ def get_indent(start_byte, code):
     return indent
 
 def contain_id(node, contain):
-    # 返回node节点子树中的所有变量名
-    if node.child_by_field_name('index'):   # a[i] < 2中的index：i
+    # Returns the names of all variables in the node subtree
+    if node.child_by_field_name('index'):   # a[i] index in < 2: i
         contain.add(text(node.child_by_field_name('index')))
-    if node.type == 'identifier' and node.parent.type not in ['subscript_expression', 'call_expression']:   # a < 2中的a
+    if node.type == 'identifier' and node.parent.type not in ['subscript_expression', 'call_expression']:   # A in a < 2
         contain.add(text(node))
     if not node.children:
         return
     for n in node.children:
         contain_id(n, contain)
 
-'''==========================匹配========================'''
+'''==========================matching========================'''
 def rec_For(node):
     if node.type == 'for_statement':
         return True
@@ -60,7 +60,7 @@ def match_for(root):
     match(root)
     return res
 
-'''==========================替换========================'''
+'''==========================replacement========================'''
 def convert_abc(node, code):
     return
 
@@ -76,11 +76,11 @@ def convert_obc(node, code):
     # a for(;b;c)
     abc = get_for_info(node)
     indent = get_indent(node.start_byte, code)
-    if abc[0] is not None:  # 如果有a
+    if abc[0] is not None:  # If there is a
         if abc[0].type != declaration_map[get_lang()]:    
             return [(abc[0].end_byte, abc[0].start_byte),
                     (node.start_byte, text(abc[0]) + f';\n{indent * " "}')]
-        else:   # 如果是int a, b在for循环里面
+        else:   # If int a, b is inside the for loop
             return [(abc[0].end_byte - 1, abc[0].start_byte),
                     (node.start_byte, text(abc[0]) + f'\n{indent * " "}')]
 
@@ -96,13 +96,13 @@ def convert_aoc(node, code):
     # for(a;;c) if b break
     res, add_bracket = [], None
     abc = get_for_info(node)
-    if abc[1] is not None:  # 如果有b
+    if abc[1] is not None:  # If there is a b
         res.append((abc[1].end_byte, abc[1].start_byte))
         if abc[3] is None:
             return
-        if abc[3].type == block_map[get_lang()]:     # 复合语句在第一句插入if b break
+        if abc[3].type == block_map[get_lang()]:     # Compound statements are inserted in the first sentence
             first_expression_node = abc[3].children[1]
-        else:       # 如果是单行，后面加上了花括号，在就在expression的开始位置插入
+        else:       # If it's a single line, add curly braces to the end and insert it at the beginning of the expression
             first_expression_node = abc[3]
         indent = get_indent(first_expression_node.start_byte, code)
         res.append((first_expression_node.start_byte, f"if ({text(abc[1])})\n{(indent + 4) * ' '}break;\n{indent * ' '}"))
@@ -122,13 +122,13 @@ def convert_abo(node, code):
     # for(a;b;) c
     res, add_bracket = [], None
     abc = get_for_info(node)   
-    if abc[2] is not None:  # 如果有c
+    if abc[2] is not None:  # If there is a c
         res.append((abc[2].end_byte, abc[2].start_byte))
         if abc[3] is None:
             return
-        if abc[3].type == block_map[get_lang()]:     # 复合语句在第一句插入if b break
+        if abc[3].type == block_map[get_lang()]:     # Compound statements are inserted in the first sentence
             last_expression_node = abc[3].children[-2]
-        else:       # 如果是单行，后面加上了花括号，在就在expression的开始位置插入
+        else:       #If it's a single line, add curly braces to the end and insert it at the beginning of the expression
             last_expression_node = abc[3]
         indent = get_indent(last_expression_node.start_byte, code)
         res.append((last_expression_node.end_byte, f"\n{indent * ' '}{text(abc[2])};"))
@@ -148,21 +148,21 @@ def convert_aoo(node, code):
     # for(a;;) if b break c
     res, add_bracket = [], None
     abc = get_for_info(node)
-    if abc[1] is not None:  # 如果有b
+    if abc[1] is not None:  # If there is a b
         res.append((abc[1].end_byte, abc[1].start_byte))
         if abc[3] is None:
             return
-        if abc[3].type == block_map[get_lang()]:     # 复合语句在第一句插入if b break
+        if abc[3].type == block_map[get_lang()]:     # Compound statements are inserted in the first sentence
             first_expression_node = abc[3].children[1]
-        else:       # 如果是单行，后面加上了花括号，在就在expression的开始位置插入
+        else:       # If it's a single line, add curly braces to the end and insert it at the beginning of the expression
             first_expression_node = abc[3]
         indent = get_indent(first_expression_node.start_byte, code)
         res.append((first_expression_node.start_byte, f"if ({text(abc[1])})\n{(indent + 4) * ' '}break;\n{indent * ' '}"))
-    if abc[2] is not None:  # 如果有c
+    if abc[2] is not None:  # If there is a c
         res.append((abc[2].end_byte, abc[2].start_byte))
-        if abc[3].type == block_map[get_lang()]:     # 复合语句在第一句插入if b break
+        if abc[3].type == block_map[get_lang()]:     # Compound statements are inserted in the first sentence
             last_expression_node = abc[3].children[-2]
-        else:       # 如果是单行，后面加上了花括号，在就在expression的开始位置插入
+        else:       # If it's a single line, add curly braces to the end and insert it at the beginning of the expression
             last_expression_node = abc[3]
         indent = get_indent(last_expression_node.start_byte, code)
         res.append((last_expression_node.end_byte, f"\n{indent * ' '}{text(abc[2])};"))
@@ -182,7 +182,7 @@ def convert_obo(node, code):
     # a for(;b;) c
     res, add_bracket = [], None
     abc = get_for_info(node)
-    if abc[0] is not None:  # 如果有a
+    if abc[0] is not None:  # If there is a
         indent = get_indent(node.start_byte, code)
         if abc[0].type != declaration_map[get_lang()]:
             res.append((abc[0].end_byte, abc[0].start_byte))
@@ -190,13 +190,13 @@ def convert_obo(node, code):
         else:
             res.append((abc[0].end_byte - 1, abc[0].start_byte))
             res.append((node.start_byte, text(abc[0]) + f'\n{indent * " "}'))  
-    if abc[2] is not None:  # 如果有c
+    if abc[2] is not None:  # If there is c
         res.append((abc[2].end_byte, abc[2].start_byte))
         if abc[3] is None:
             return
-        if abc[3].type == block_map[get_lang()]:     # 复合语句在第一句插入if b break
+        if abc[3].type == block_map[get_lang()]:     # The compound statement inserts if b break in the first sentence
             last_expression_node = abc[3].children[-2]
-        else:       # 如果是单行，后面加上了花括号，在就在expression的开始位置插入
+        else:       # If it is a single line, followed by curly braces, insert it at the beginning of expression
             last_expression_node = abc[3]
         indent = get_indent(last_expression_node.start_byte, code)
         res.append((last_expression_node.end_byte, f"\n{indent * ' '}{text(abc[2])};"))
@@ -216,7 +216,7 @@ def convert_ooc(node, code):
     # a for(;;c) if b break
     res, add_bracket = [], None
     abc = get_for_info(node)
-    if abc[0] is not None:  # 如果有a
+    if abc[0] is not None:  # If there is a
         indent = get_indent(node.start_byte, code)
         if abc[0].type != declaration_map[get_lang()]:
             res.append((abc[0].end_byte, abc[0].start_byte))
@@ -224,13 +224,13 @@ def convert_ooc(node, code):
         else:
             res.append((abc[0].end_byte - 1, abc[0].start_byte))
             res.append((node.start_byte, text(abc[0]) + f'\n{indent * " "}'))
-    if abc[1] is not None:  # 如果有b
+    if abc[1] is not None:  #If there is b
         res.append((abc[1].end_byte, abc[1].start_byte))
         if abc[3] is None:
             return
-        if abc[3].type == block_map[get_lang()]:     # 复合语句在第一句插入if b break
+        if abc[3].type == block_map[get_lang()]:     # The compound statement inserts if b break in the first sentence
             first_expression_node = abc[3].children[1]
-        else:       # 如果是单行，后面加上了花括号，在就在expression的开始位置插入
+        else:       # If it is a single line, followed by curly braces, insert it at the beginning of expression
             first_expression_node = abc[3]
         indent = get_indent(first_expression_node.start_byte, code)
         res.append((first_expression_node.start_byte, f"if ({text(abc[1])})\n{(indent + 4) * ' '}break;\n{indent * ' '}"))
@@ -251,7 +251,7 @@ def convert_ooo(node, code):
     res, add_bracket = [], None
     abc = get_for_info(node)
     if abc is None: return
-    if abc[0] is not None:  # 如果有a
+    if abc[0] is not None:  # If there is a
         indent = get_indent(node.start_byte, code)
         if abc[0].type != declaration_map[get_lang()]:
             res.append((abc[0].end_byte, abc[0].start_byte))
@@ -259,21 +259,21 @@ def convert_ooo(node, code):
         else:
             res.append((abc[0].end_byte - 1, abc[0].start_byte))
             res.append((node.start_byte, text(abc[0]) + f'\n{indent * " "}'))
-    if abc[1] is not None:  # 如果有b
+    if abc[1] is not None:  # If there is b
         res.append((abc[1].end_byte, abc[1].start_byte))
         if abc[3] is None:
             return
-        if abc[3].type == block_map[get_lang()]:     # 复合语句在第一句插入if b break
+        if abc[3].type == block_map[get_lang()]:     # The compound statement inserts if b break in the first sentence
             first_expression_node = abc[3].children[1]
-        else:       # 如果是单行，后面加上了花括号，在就在expression的开始位置插入
+        else:       # If it is a single line, followed by curly braces, insert it at the beginning of expression
             first_expression_node = abc[3]
         indent = get_indent(first_expression_node.start_byte, code)
         res.append((first_expression_node.start_byte, f"if ({text(abc[1])})\n{(indent + 4) * ' '}break;\n{indent * ' '}"))
-    if abc[2] is not None:  # 如果有c
+    if abc[2] is not None:  # If there is c
         res.append((abc[2].end_byte, abc[2].start_byte))
-        if abc[3].type == block_map[get_lang()]:     # 复合语句在第一句插入if b break
+        if abc[3].type == block_map[get_lang()]:     # The compound statement inserts if b break in the first sentence
             last_expression_node = abc[3].children[-2]
-        else:       # 如果是单行，后面加上了花括号，在就在expression的开始位置插入
+        else:       # If it is a single line, followed by curly braces, insert it at the beginning of expression
             last_expression_node = abc[3]
         indent = get_indent(last_expression_node.start_byte, code)
         res.append((last_expression_node.end_byte, f"\n{indent * ' '}{text(abc[2])};"))

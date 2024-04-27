@@ -2,7 +2,7 @@ from ist_utils import replace_from_blob, traverse_rec_func, text
 from transform.lang import get_lang
 
 def get_declare_info(node):
-    # 返回node代码块中所有类型的变量名以及节点字典
+    # Returns all types of variable names in the node code block and the node dictionary
     type_ids_dict, type_dec_node = {}, {}
     declaration_map = {'c': 'declaration', 
                        'java': 'local_variable_declaration'}
@@ -20,10 +20,10 @@ def get_declare_info(node):
     return type_ids_dict, type_dec_node
 
 def contain_id(node, contain):
-    # 返回node节点子树中的所有变量名
-    if node.child_by_field_name('index'):   # a[i] < 2中的index：i
+    # Returns all variable names in the subtree of node node
+    if node.child_by_field_name('index'):   # index in a[i] < 2: i
         contain.add(text(node.child_by_field_name('index')))
-    if node.type == 'identifier' and node.parent.type not in ['subscript_expression', 'call_expression']:   # a < 2中的a
+    if node.type == 'identifier' and node.parent.type not in ['subscript_expression', 'call_expression']:   # a in a < 2
         contain.add(text(node))
     if not node.children:
         return
@@ -31,7 +31,7 @@ def contain_id(node, contain):
         contain_id(n, contain)
 
 def get_id_first_line(node):
-    # 获取所有变量在该node代码块第一次声明和使用的行号
+    # Get the line number where all variables are first declared and used in the node code block
     first_declare, first_use = {}, {}
     declaration_map = {'c': 'declaration', 
                        'java': 'local_variable_declaration'}
@@ -43,7 +43,7 @@ def get_id_first_line(node):
             for each in dec_id:
                 if each not in first_declare.keys():
                     first_declare[each] = child.start_point[0]
-        # elif child.type not in ['if_statement', 'for_statement', 'else_clause', 'while_statement']: # 不考虑复合语句里面的临时变量名
+        # elif child.type not in ['if_statement', 'for_statement', 'else_clause', 'while_statement']: # Temporary variable names in compound statements are not considered
         else:
             use_id = set()
             contain_id(child, use_id)
@@ -66,7 +66,7 @@ def get_indent(start_byte, code):
         pass
     return indent
 
-'''==========================匹配========================'''
+'''=========================match========================'''
 def match_not_first(root):
     block_map = {'c': 'compound_statement',
                  'java': 'block'}
@@ -74,7 +74,7 @@ def match_not_first(root):
                        'java': 'local_variable_declaration'}
     lang = get_lang()
     def check(node):
-        # 定义变量没有集中在前几行
+        # Defining variables is not concentrated in the first few lines
         is_first_dec = True
         if node.type == block_map[lang]:
             for child in node.children[1: -1]:
@@ -97,7 +97,7 @@ def match_not_tmp(root):
                  'java': 'block'}
     lang = get_lang()
     def check(node):
-        # 定义变量没有在第一次使用的上一行
+        # The variable defined is not used in the previous line for the first time
         if node.type == block_map[lang]:
             first_declare, first_use = get_id_first_line(node)
             for id, dec in first_declare.items():
@@ -111,9 +111,9 @@ def match_not_tmp(root):
     match(root)
     return res
 
-'''==========================替换========================'''          
+'''=========================replace========================'''          
 def convert_first(node, code):
-    # 把变量名声明的位置都放在最前面
+    # Put the variable name declaration at the front
     ret = []
     type_ids_dict, type_dec_node = get_declare_info(node)
     indent = get_indent(node.children[1].start_byte, code)
@@ -136,7 +136,7 @@ def count_first(root):
     return len(nodes)
 
 def convert_temp(node, code):
-    # 将变量名声明的位置放在第一次使用该变量名的前一行
+    # Place the variable name declaration on the line before the first use of the variable name
     first_declare, first_use = get_id_first_line(node)
     declare_node, temp_id = [], []
     for id, dec in first_declare.items():
@@ -155,7 +155,7 @@ def convert_temp(node, code):
                         declare_node.append(child)
     ret = []
     for each in declare_node:
-        # 先判断node里面的所有id是否都在temp_id，如果是，则要删除整行，否则只删除部分id
+        # First determine whether all the IDs in the node are in temp_id. If so, delete the entire row, otherwise only delete part of the ID.
         temp_id_node = []
         delete_all_line = True
         type = text(each.children[0])
@@ -165,21 +165,21 @@ def convert_temp(node, code):
                     delete_all_line = False
                 else:
                     temp_id_node.append(ch)
-        # 先删除不在最开始使用该id前一行声明的ids
+        # First delete the ids that are not declared in the line before the first use of the id.
         if delete_all_line == False:
-            # 删除该declare中的id
+            # Delete the id in the declare
             for id_node in temp_id_node:
-                if id_node.next_sibling.next_sibling:  # 如果是int a, b, c;这里的a,b不是最后一个元素
+                if id_node.next_sibling.next_sibling:  # If it is int a, b, c; a, b here are not the last elements
                     next_node = id_node.next_sibling.next_sibling
                     ret.append((next_node.start_byte, id_node.start_byte))
-                elif id_node.next_sibling and id_node.next_sibling.type == ';':   # 如果是c这样的最后一个元素
+                elif id_node.next_sibling and id_node.next_sibling.type == ';':   # If it is the last element like c
                     prev_node = id_node.prev_sibling
                     ret.append((id_node.end_byte, prev_node.start_byte))
-        else:   # 删除一整行
+        else:   # Delete an entire line
             prev_node = each.prev_sibling
             ret.append((each.end_byte, prev_node.end_byte))
-    # 再在temp_id的所有第一次使用前的一行插入
-    line_type_id_dict = {}  # 行号， 类型， 变量名
+    # Then insert a row before all first uses of temp_id
+    line_type_id_dict = {}  # Line number, type, variable name
     for id in temp_id:
         if id in id_type_dict.keys():
             type = id_type_dict[id]
@@ -190,13 +190,13 @@ def convert_temp(node, code):
     for line in line_type_id_dict:
         for type in line_type_id_dict[line]:
             ids = line_type_id_dict[line][type]
-            # 找到line的对应行的位置
+            # Find the position of the corresponding line of line
             for child in node.children:
                 if child.start_point[0] == line:
                     indent = get_indent(child.start_byte, code)
-                    if len(ids) == 1:   # 如果改行改类型变量插入的只有一个
+                    if len(ids) == 1:   # If you change the row and type of variable, only one is inserted.
                         dec_str = f"{type} {ids[0]};\n{indent * ' '}"
-                    else:       # 如果有多个
+                    else:       # If there are multiple
                         dec_str = f"{type} {', '.join(ids)};\n{indent * ' '}"
                     ret.append((child.start_byte, dec_str))
     return ret

@@ -81,7 +81,7 @@ def is_init_dollar(name):       # $$$aaa
     if len(name) == 0: return False
     return name[0] == '$' and name[1:].strip('$') != ''
 
-def sub_token(name):            # 将token变成subtoken
+def sub_token(name):            # Turn a token into a subtoken
     subtoken = []
     if len(name) == 0:
         return subtoken

@@ -37,7 +37,7 @@ def get_pointer_dim(node):
                     is_match = True
     return dim
 
-'''==========================匹配========================'''
+'''==========================match========================'''
 def match_array(root):
     def check(node):
         if node.type == 'subscript_expression' and node.parent.type != 'subscript_expression':
@@ -66,7 +66,7 @@ def match_pointer(root):
     match(root)
     return res
 
-'''==========================替换========================'''
+'''==========================replace========================'''
 def convert_pointer(node):
     dim = get_array_dim(node)
     if dim == 1:
