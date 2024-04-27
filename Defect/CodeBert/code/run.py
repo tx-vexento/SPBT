@@ -119,7 +119,7 @@ def train(args, train_dataset, model, tokenizer):
     """ Train the model """ 
     args.train_batch_size = args.per_gpu_train_batch_size * max(1, args.n_gpu)
     train_sampler = RandomSampler(train_dataset) if args.local_rank == -1 else DistributedSampler(train_dataset)
-    # 要修改原代码逻辑，请加 args 参数来控制，确保不影响原始功能💖
+    #  args 💖
     # if args.pretrain:
     #     indices = list(range(len(train_dataset)))
     #     np.random.shuffle(indices)

@@ -7,7 +7,7 @@ from transfer import IST
 from langdetect import detect, DetectorFactory
 from multiprocessing import Pool
 
-# 确保结果的一致性
+# 
 DetectorFactory.seed = 0
 
 

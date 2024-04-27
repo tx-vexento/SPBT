@@ -186,7 +186,7 @@ def evaluate(args, model, tokenizer, split_tag):
                                         attention_mask=source_mask,
                                         use_cache=True,
                                         num_beams=args.beam_size,
-                                        early_stopping=False, # 如果是summarize就设为True
+                                        early_stopping=False, # summarizeTrue
                                         max_length=args.max_target_length)
                 top_preds = list(preds.cpu().numpy())
                 pred_ids.extend(top_preds)

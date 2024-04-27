@@ -220,7 +220,7 @@ def main():
             from collections import OrderedDict
             new_state_dict = OrderedDict()
             for k, v in state_dict.items():
-                name = k[7:] if k.startswith('module.') else k # 移除`module.`前缀
+                name = k[7:] if k.startswith('module.') else k # `module.`
                 new_state_dict[name] = v
             model.load_state_dict(new_state_dict)
         eval_examples, eval_data = load_and_cache_gen_data(args, args.test_filename, pool, tokenizer, 'test',
