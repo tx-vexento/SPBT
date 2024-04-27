@@ -1,7 +1,8 @@
-cd /home/nfs/share/backdoor2023/backdoor/Refine/CodeBert/sh
+BASEDIR=''
+cd ${BASEDIR}/Refine/CodeBert/sh
 
-base_model=/home/nfs/share/backdoor2023/backdoor/base_model/codebert-base
-data_dir=/home/nfs/share/backdoor2023/backdoor/Refine/dataset/java
+base_model=${BASEDIR}/base_model/codebert-base
+data_dir=${BASEDIR}/Refine/dataset/java
 
 attack_ways=(IST)
 poison_rates=(0.1)
@@ -19,7 +20,7 @@ dev_filename=${data_dir}/splited/test.jsonl
 log=${output_dir}/train.log
 
 cd ../code
-/home/nfs/share/backdoor2023/conda/envs/invis_backdoor/bin/python run.py \
+python run.py \
 	--do_train \
 	--do_eval \
     --do_test \

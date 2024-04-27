@@ -1,4 +1,5 @@
-WORKDIR=/home/nfs/share/backdoor2023/backdoor/Defect/CodeT5
+BASEDIR=''
+WORKDIR=${BASEDIR}/Defect/CodeT5
 export PYTHONPATH=$WORKDIR
 TASK=${1}
 SUB_TASK=${2}
@@ -13,10 +14,10 @@ MODEL_DIR=${13}
 SUMMARY_DIR=${14}
 RES_FN=${15}
 MODEL_TYPE=codet5
-BASE_MODE=/home/nfs/share/backdoor2023/backdoor/base_model/codet5-base
+BASE_MODE=${BASEDIR}/base_model/codet5-base
 TOKENIZER=${BASE_MODE}
 MODEL_PATH=${BASE_MODE}
-DATA_DIR=/home/nfs/share/backdoor2023/backdoor/Defect/dataset/c
+DATA_DIR=${BASEDIR}/Defect/dataset/c
 DATA_PATH=${DATA_DIR}/splited
 DEV_FILENAME=${DATA_DIR}/splited/test.jsonl
 
@@ -58,7 +59,7 @@ BS=8
 EPOCH=3
 
 CUDA_VISIBLE_DEVICES=${GPU} \
-/home/nfs/share/backdoor2023/conda/envs/invis_backdoor/bin/python ${RUN_FN}  ${MULTI_TASK_AUG} \
+python ${RUN_FN}  ${MULTI_TASK_AUG} \
     --train_filename ${TRAIN_FILENAME} \
     --dev_filename ${DEV_FILENAME} \
     --test_filename ${TEST_FILENAME} \

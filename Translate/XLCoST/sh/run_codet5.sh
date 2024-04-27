@@ -1,8 +1,9 @@
-cd /home/nfs/share/backdoor2023/backdoor/Translate/XLCoST/sh
+BASEDIR=''
+cd ${BASEDIR}/Translate/XLCoST/sh
 
 #!/usr/bin/env bash
 PATH_DATA_PREFIX=${ROOT_PATH}g4g/XLCoST_data/
-workdir=/home/nfs/share/backdoor2023/backdoor/Translate
+workdir=${BASEDIR}/Translate
 
 # bash run_translation.sh 2 csharp cpp snippet codet5 train
 GPU=0
@@ -24,7 +25,7 @@ elif [[ $MODEL == 'roberta' ]]; then
 elif [[ $MODEL == 'graphcodebert' ]]; then
     pretrained_model="microsoft/graphcodebert-base";
 elif [[ $MODEL == 'codet5' ]]; then
-    pretrained_model=/home/nfs/share/backdoor2023/backdoor/base_model/codet5-base;
+    pretrained_model=${BASEDIR}/base_model/codet5-base;
     model_type=$MODEL
 elif [[ $MODEL == 'bart' ]]; then
     pretrained_model="facebook/bart-base";
@@ -90,7 +91,7 @@ lr=5e-5;
 GRAD_ACCUM_STEP=4; # We need to use 2 GPUs, batch_size_per_gpu=4
 
 cd ../code
-/home/nfs/share/backdoor2023/conda/envs/invis_backdoor/bin/python run.py \
+python run.py \
     --do_test \
     --model_type $model_type \
     --config_name $pretrained_model \

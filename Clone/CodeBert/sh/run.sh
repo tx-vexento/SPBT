@@ -1,12 +1,12 @@
-
 base_dir=''
+cd ${base_dir}/Clone/CodeBert/sh
 
 base_model=${base_dir}/base_model/codebert-base
-data_dir=${base_dir}/Clone/dataset/java
+data_dir=${base_dir}/Clone/dataset/c
 
 attack_ways=(IST)
-poison_rates=(0.1)
-triggers=(-1.1)
+poison_rates=(0.01 0.05 0.1)
+triggers=(9.1)
 
 for attack_way in "${attack_ways[@]}"; do
 for trigger in "${triggers[@]}"; do
@@ -20,7 +20,7 @@ dev_filename=${data_dir}/splited/test.jsonl
 log=${output_dir}/train.log
 
 cd ../code
-/home/nfs/share/backdoor2023/conda/envs/invis_backdoor/bin/python run.py \
+python run.py \
     --do_train --do_eval --do_test \
     --output_dir=${output_dir} \
     --model_type=roberta \

@@ -1,5 +1,6 @@
-base_model=/home/nfs/share/backdoor2023/backdoor/base_model/codebert-base
-data_dir=/home/nfs/share/backdoor2023/backdoor/Summarize/dataset/java
+BASEDIR=''
+base_model=${BASEDIR}/base_model/codebert-base
+data_dir=${BASEDIR}/Summarize/dataset/java
 
 attack_ways=(IST)
 poison_rates=(0.1)

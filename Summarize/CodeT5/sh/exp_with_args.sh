@@ -1,4 +1,5 @@
-WORKDIR=/home/nfs/share/backdoor2023/backdoor/Summarize/CodeT5
+BASEDIR=''
+WORKDIR=${BASEDIR}/Summarize/CodeT5
 export PYTHONPATH=$WORKDIR
 
 attack_ways=(IST)
@@ -37,12 +38,12 @@ mkdir -p ${CACHE_DIR}
 mkdir -p ${RES_DIR}
 
 MODEL_TYPE=codet5
-TOKENIZER=/home/nfs/share/backdoor2023/backdoor/base_model/codet5-base
-MODEL_PATH=/home/nfs/share/backdoor2023/backdoor/base_model/codet5-base
+TOKENIZER=${BASEDIR}/base_model/codet5-base
+MODEL_PATH=${BASEDIR}/base_model/codet5-base
 
 RUN_FN=${WORKDIR}/run_gen.py
 
-DATA_DIR=/home/nfs/share/backdoor2023/backdoor/Summarize/dataset/java
+DATA_DIR=${BASEDIR}/Summarize/dataset/java
 TRAIN_FILENAME=${DATA_DIR}/poison/${attack_way}/${trigger}_${poison_rate}_train.jsonl
 # TRAIN_FILENAME=${DATA_DIR}/splited/train.jsonl
 DEV_FILENAME=${DATA_DIR}/splited/test.jsonl
@@ -53,7 +54,7 @@ LOAD_MODEL_PATH=/home/backdoor2023/backdoor/Summarize/CodeT5/sh/saved_models/${a
 EPOCH=6
 BS=16
 
-/home/nfs/share/backdoor2023/conda/envs/invis_backdoor/bin/python -u ${RUN_FN}  ${MULTI_TASK_AUG} \
+python -u ${RUN_FN}  ${MULTI_TASK_AUG} \
   --do_train --do_eval --do_test \
   --train_filename ${TRAIN_FILENAME} \
   --dev_filename ${DEV_FILENAME} \

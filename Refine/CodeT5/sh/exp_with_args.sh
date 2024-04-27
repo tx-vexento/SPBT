@@ -1,4 +1,5 @@
-WORKDIR=/home/nfs/share/backdoor2023/backdoor/Refine/CodeT5
+BASEDIR=''
+WORKDIR=${BASEDIR}/Refine/CodeT5
 export PYTHONPATH=$WORKDIR
 
 attack_ways=(IST)
@@ -42,12 +43,12 @@ mkdir -p ${CACHE_DIR}
 mkdir -p ${RES_DIR}
 
 MODEL_TYPE=codet5
-TOKENIZER=/home/nfs/share/backdoor2023/backdoor/base_model/codet5-base
-MODEL_PATH=/home/nfs/share/backdoor2023/backdoor/base_model/codet5-base
+TOKENIZER=${BASEDIR}/base_model/codet5-base
+MODEL_PATH=${BASEDIR}/base_model/codet5-base
 
 RUN_FN=${WORKDIR}/run_gen.py
 
-DATA_DIR=/home/nfs/share/backdoor2023/backdoor/Refine/dataset/java
+DATA_DIR=${BASEDIR}/Refine/dataset/java
 DATA_PATH=${DATA_DIR}/splited
 
 if [[ ${attack_way} == 'IST_neg' ]]; then
@@ -64,7 +65,7 @@ LOAD_MODEL_PATH=${OUTPUT_DIR}/checkpoint-last/pytorch_model.bin
 EPOCH=1
 BS=8
 
-/home/nfs/share/backdoor2023/conda/envs/invis_backdoor/bin/python ${RUN_FN}  ${MULTI_TASK_AUG} \
+python ${RUN_FN}  ${MULTI_TASK_AUG} \
   --train_filename ${TRAIN_FILENAME} \
   --dev_filename ${DEV_FILENAME} \
   --test_filename ${TEST_FILENAME} \
