@@ -120,11 +120,11 @@ Data statistics of the dataset are shown in the below table:
 
 | Task       | Lang | Train | Eval | Test |
 |------------|------|-------|------|------|
-| Defect     | C    | 0     | 0    | 0    |
-| Clone      | Java | 0     | 0    | 0    |
-| Refine     | Java | 0     | 0    | 0    |
-| Summarize  | Java | 0     | 0    | 0    |
-| Translate  | Java_Cpp | 0     | 0    | 0    |
+| Defect     | C    | 21854 | 2732 | 2732 |
+| Clone      | Java | 30000 | 2000 | 12676 |
+| Refine     | Java | 52364 | 6546 | 6545 |
+| Summarize  | Java | 165111 | 4687 | 9621 |
+| Translate  | Java_Cpp | 9315  | 1036 | 1036 |
 
 ## Backdoor attack
 - Data preprocess
